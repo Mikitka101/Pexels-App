@@ -1,4 +1,4 @@
-package com.nikitayasiulevich.pexelsapp
+package com.nikitayasiulevich.pexelsapp.presentation.details
 
 sealed class DetailsScreenState {
 

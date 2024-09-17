@@ -25,13 +25,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private fun loadCuratedPhotos() {
         viewModelScope.launch {
             val photos = repository.loadCuratedPhotos()
-            _screenState.value = HomeScreenState.Photos(photos = photos)
+            val titles = repository.loadFeaturedCollections()
+            _screenState.value = HomeScreenState.Photos(photos = photos, titles = titles)
         }
     }
 
     fun loadNextCuratedPhotos() {
         _screenState.value = HomeScreenState.Photos(
             photos = repository.photos,
+            titles = repository.collections,
             nextDataIsLoading = true
         )
         loadCuratedPhotos()

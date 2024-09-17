@@ -31,6 +31,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nikitayasiulevich.pexelsapp.domain.Photo
 import com.nikitayasiulevich.pexelsapp.presentation.commons.PhotosListItem
+import com.nikitayasiulevich.pexelsapp.presentation.commons.ZoomedImageCard
 import com.nikitayasiulevich.pexelsapp.ui.theme.Black
 import com.nikitayasiulevich.pexelsapp.ui.theme.LightGray
 import com.nikitayasiulevich.pexelsapp.ui.theme.Red40
@@ -54,6 +56,9 @@ fun HomeScreen(
     val screenState = viewModel.screenState.observeAsState(HomeScreenState.Initial)
 
     val currentState = screenState.value
+
+    var showPhotoPreview by remember { mutableStateOf(false) }
+    var activePhoto by remember { mutableStateOf<Photo?>(null) }
 
     Scaffold(
         modifier = Modifier
@@ -78,16 +83,8 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         itemsIndexed(
-                            listOf(
-                                "Ice",
-                                "Watches",
-                                "Drawing",
-                                "Castle",
-                                "Nature",
-                                "Lego",
-                                "Apple"
-                            ),
-                            key = { _, it -> it }
+                            currentState.titles,
+                            key = { _, it -> it.id }
                         ) { index, it ->
                             Button(
                                 modifier = Modifier.padding(horizontal = 5.dp),
@@ -101,7 +98,7 @@ fun HomeScreen(
                                 onClick = { /*TODO*/ }
                             ) {
                                 Text(
-                                    text = it,
+                                    text = it.title,
                                     color = if (index == 0)
                                         WhiteFF
                                     else
@@ -119,9 +116,19 @@ fun HomeScreen(
                         onPhotoClickListener = { photo ->
                             onPhotoClickListener(photo)
                         },
-                        nextDataIsLoading = currentState.nextDataIsLoading
+                        nextDataIsLoading = currentState.nextDataIsLoading,
+                        onPhotoDragStart = { photo ->
+                            activePhoto = photo
+                            showPhotoPreview = true
+                        },
+                        onPhotoDragEnd = { showPhotoPreview = false }
                     )
                 }
+                ZoomedImageCard(
+                    modifier = Modifier.padding(20.dp),
+                    isVisible = showPhotoPreview,
+                    photo = activePhoto
+                )
             }
 
             HomeScreenState.Loading -> {
@@ -188,6 +195,8 @@ fun Photos(
     photos: List<Photo>,
     onPhotoClickListener: (Photo) -> Unit,
     nextDataIsLoading: Boolean,
+    onPhotoDragStart: (Photo) -> Unit,
+    onPhotoDragEnd: () -> Unit,
 ) {
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
@@ -202,9 +211,16 @@ fun Photos(
                 "${photo.id}${index}"
             }
         ) {
-            PhotosListItem(photo = photos[it]) { photo ->
-                onPhotoClickListener(photo)
-            }
+            PhotosListItem(
+                photo = photos[it],
+                onPhotoClickListener = { photo ->
+                    onPhotoClickListener(photo)
+                },
+                onPhotoDragStart = { photo ->
+                    onPhotoDragStart(photo)
+                },
+                onPhotoDragEnd = onPhotoDragEnd
+            )
         }
         item {
             if (nextDataIsLoading) {

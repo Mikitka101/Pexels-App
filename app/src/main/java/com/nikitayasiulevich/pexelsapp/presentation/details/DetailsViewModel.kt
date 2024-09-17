@@ -4,8 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.nikitayasiulevich.pexelsapp.data.repository.PhotosRepository
 import com.nikitayasiulevich.pexelsapp.domain.Photo
+import kotlinx.coroutines.launch
 
 class DetailsViewModel(
     photo: Photo,
@@ -29,5 +31,15 @@ class DetailsViewModel(
 
     fun downloadImage(url: String) {
         repository.downloadFile(url)
+    }
+
+    fun changeLikedState(photo: Photo) {
+        viewModelScope.launch {
+            if (repository.getPhoto(photo.id) == null) {
+                repository.addPhotoToLiked(photo)
+            } else {
+                repository.deletePhotoFromLiked(photo.id)
+            }
+        }
     }
 }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +32,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.nikitayasiulevich.pexelsapp.navigation.AppNavGraph
 import com.nikitayasiulevich.pexelsapp.navigation.rememberNavigationState
+import com.nikitayasiulevich.pexelsapp.presentation.bookmarks.BookmarksScreen
 import com.nikitayasiulevich.pexelsapp.presentation.details.DetailsScreen
 import com.nikitayasiulevich.pexelsapp.presentation.home.HomeScreen
 import com.nikitayasiulevich.pexelsapp.ui.theme.Gray
@@ -132,14 +131,24 @@ fun MainScreen(
             },
             bookmarksScreenContent = {
                 bottomBarState.value = true
-                Text(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = Color.Green),
-                    text = "bookmarks screen"
+                BookmarksScreen(
+                    paddingValues = paddingValues,
+                    onPhotoClickListener = { photo ->
+                        navigationState.navigateToDetails(photo)
+                    }
                 )
             },
-            detailsScreenContent = { photo ->
+            detailsScreenForHomePageContent = { photo ->
+                bottomBarState.value = false
+                DetailsScreen(
+                    photo = photo,
+                    application = application,
+                    onBackPressed = {
+                        navigationState.navHostController.popBackStack()
+                    }
+                )
+            },
+            detailsScreenForBookmarksPageContent = { photo ->
                 bottomBarState.value = false
                 DetailsScreen(
                     photo = photo,

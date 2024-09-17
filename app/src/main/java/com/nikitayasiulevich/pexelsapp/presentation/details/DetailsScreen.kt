@@ -3,10 +3,10 @@ package com.nikitayasiulevich.pexelsapp.presentation.details
 import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,9 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -28,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,7 +38,6 @@ import com.nikitayasiulevich.pexelsapp.ui.theme.LightGray
 import com.nikitayasiulevich.pexelsapp.ui.theme.Red40
 import com.nikitayasiulevich.pexelsapp.ui.theme.WhiteFF
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailsScreen(
     photo: Photo,
@@ -99,7 +98,9 @@ fun DetailsScreen(
                 Spacer(modifier = Modifier.height(20.dp))
                 PhotosListItem(
                     photo = currentState.photo,
-                    onPhotoClickListener = {}
+                    onPhotoClickListener = {},
+                    onPhotoDragStart = { _ -> },
+                    onPhotoDragEnd = {}
                 )
                 Row(
                     modifier = Modifier
@@ -115,18 +116,18 @@ fun DetailsScreen(
                         shape = RoundedCornerShape(28.dp),
                         containerColor = LightGray,
                         onClick = {
-                            viewModel.downloadImage(currentState.photo.src)
+                            viewModel.downloadImage(currentState.photo.srcOriginal)
                         }
                     ) {
                         Row(
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            FloatingActionButton(
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxHeight(),
-                                shape = CircleShape,
-                                containerColor = Red40,
-                                onClick = {}
+                                    .clip(CircleShape)
+                                    .background(color = Red40)
+                                    .size(56.dp),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     modifier = Modifier.background(Color.Transparent),
@@ -135,6 +136,7 @@ fun DetailsScreen(
                                     tint = WhiteFF
                                 )
                             }
+
                             Row(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -152,15 +154,15 @@ fun DetailsScreen(
                     FloatingActionButton(
                         shape = CircleShape,
                         containerColor = LightGray,
-                        onClick = { }
+                        contentColor = Red40,
+                        onClick = {
+                            viewModel.changeLikedState(photo = photo)
+                        }
                     ) {
-                        Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = null)
+                        Icon(imageVector = Icons.Filled.FavoriteBorder, contentDescription = null)
                     }
                 }
             }
-
-
         }
     }
-
 }

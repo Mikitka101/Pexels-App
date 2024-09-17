@@ -12,7 +12,8 @@ fun AppNavGraph(
     navHostController: NavHostController,
     homeScreenContent: @Composable () -> Unit,
     bookmarksScreenContent: @Composable () -> Unit,
-    detailsScreenContent: @Composable (Photo) -> Unit
+    detailsScreenForHomePageContent: @Composable (Photo) -> Unit,
+    detailsScreenForBookmarksPageContent: @Composable (Photo) -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -44,11 +45,11 @@ fun AppNavGraph(
     ) {
         homeScreenNavGraph(
             homeScreenContent = homeScreenContent,
-            detailsScreenContent = detailsScreenContent
+            detailsScreenContent = detailsScreenForHomePageContent
         )
         bookmarksScreenNavGraph(
             bookmarksScreenContent = bookmarksScreenContent,
-            detailsScreenContent = detailsScreenContent
+            detailsScreenContent = detailsScreenForBookmarksPageContent
         )
     }
 }
